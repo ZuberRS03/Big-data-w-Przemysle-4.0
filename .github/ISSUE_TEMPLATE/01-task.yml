@@ -1,0 +1,37 @@
+name: "Task"
+description: "Nowe zadanie implementacyjne lub techniczne"
+title: "[TASK] | "
+labels: ["task"]
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Opis zadania i szczegółowe wymagania"
+      description: "Co należy zaimplementować i w jaki sposób?"
+      placeholder: |
+        Opisz cel zadania i wymagania techniczne.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Dodatkowy kontekst i źródła pomocnicze"
+      description: "Linki, dokumentacja, zależności, schematy."
+      placeholder: |
+        Dokumentacja, przykłady lub inne istotne informacje.
+    validations:
+      required: false
+
+  - type: textarea
+    id: definition-of-done
+    attributes:
+      label: "Definicja wykonania zadania"
+      description: "Co musi działać, aby uznać zadanie za zakończone?"
+      value: |
+        - [ ] Implementacja została ukończona
+        - [ ] Funkcjonalność została przetestowana
+        - [ ] Wyniki zostały zweryfikowane
+    validations:
+      required: true
