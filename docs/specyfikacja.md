@@ -166,3 +166,15 @@ Technologie stanowią propozycję, a nie sztywny wymóg. Publiczne zbiory umożl
 | 6. Automatyczne miejsca | Detekcja geometrii stanowisk na pełnych obrazach i ewaluacja |
 | 7. Integracja i analityka | Wizualizacja całego parkingu, zapis wyników i agregacje |
 | 8. Badania i oddanie | Porównania metod, testy, demonstracja i sprawozdanie |
+
+## Literatura
+
+[1] P. R. L. de Almeida, L. S. Oliveira, A. S. Britto Jr., E. J. Silva Jr., A. L. Koerich, *PKLot – A robust dataset for parking lot classification*, Expert Systems with Applications, t. 42, nr 11, s. 4937–4949, 2015. DOI: 10.1016/j.eswa.2015.02.009.
+
+[2] G. Amato, F. Carrara, F. Falchi, C. Gennaro, C. Meghini, C. Vairo, *Deep learning for decentralized parking lot occupancy detection*, Expert Systems with Applications, t. 72, s. 327–334, 2017. DOI: 10.1016/j.eswa.2016.10.055. Rekord publikacji i dostęp do pełnego tekstu.
+
+[3] A. Howard, M. Sandler, G. Chu, L.-C. Chen, B. Chen, M. Tan, W. Wang, Y. Zhu, R. Pang, V. Vasudevan, Q. V. Le, H. Adam, *Searching for MobileNetV3*, 2019 IEEE/CVF International Conference on Computer Vision (ICCV), s. 1314–1324, 2019. DOI: 10.1109/ICCV.2019.00140. Pełny tekst: https://arxiv.org/abs/1905.02244.
+
+[4] J. Yosinski, J. Clune, Y. Bengio, H. Lipson, *How transferable are features in deep neural networks?*, Advances in Neural Information Processing Systems, t. 27, 2014. Pełny tekst: https://arxiv.org/abs/1411.1792.
+
+[5] G. Amato, F. Carrara, F. Falchi, C. Gennaro, C. Vairo, *Car parking occupancy detection using smart camera networks and Deep Learning*, 2016 IEEE Symposium on Computers and Communication (ISCC), s. 1212–1217, 2016. DOI: 10.1109/ISCC.2016.7543901. Rekord publikacji i dostęp do pełnego tekstu.
