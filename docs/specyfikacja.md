@@ -1,8 +1,8 @@
 # Specyfikacja projektu – Smart Parking Vision
 
 **Przedmiot:** Big Data w Przemyśle 4.0  
-**Status:** Wersja wstępna (v0.1)  
-**Zespół:** do uzupełnienia  
+**Status:** Wersja wstępna (v0.2)  
+**Zespół:** Julia Rojek i Mateusz Zubrzycki  
 **Data:** 2026-10-19
 
 ## 1. Temat projektu
@@ -11,130 +11,158 @@
 
 ## 2. Cel i motywacja
 
-Celem projektu jest opracowanie systemu analizującego obraz z kamery umieszczonej nad parkingiem. System ma identyfikować miejsca parkingowe, określać ich aktualny stan (wolne/zajęte) i prezentować wyniki w czytelnej formie. Dodatkowym celem jest rejestrowanie zmian zajętości w czasie i analizowanie zgromadzonych danych.
+Celem projektu jest opracowanie systemu analizującego obrazy parkingów rejestrowane przez kamery. System ma identyfikować miejsca parkingowe, określać ich stan (wolne/zajęte) i prezentować wyniki w czytelnej formie. Dodatkowym celem jest rejestrowanie wyników analiz oraz badanie zmian zajętości na podstawie danych zawierających informacje o czasie wykonania zdjęć.
 
-Ze względu na brak stałego dostępu do rzeczywistego parkingu rozwiązanie zostanie zweryfikowane na makiecie z modelami samochodów (np. Hot Wheels). Makieta stanowi **środowisko laboratoryjne**: wyniki testów na miniaturach nie oznaczają automatycznie takiej samej skuteczności w rzeczywistym ruchu parkingowym.
+Ze względu na brak stałego dostępu do rzeczywistego parkingu projekt będzie realizowany i weryfikowany **na publicznie dostępnych, oznaczonych zbiorach danych przedstawiających rzeczywiste parkingi**. Rozważane źródła to **PKLot** oraz **CNRPark+EXT**. Pozwala to wykorzystać fotografie wykonane w różnych warunkach oświetleniowych, atmosferycznych i z różnych perspektyw kamer bez konieczności budowania własnego stanowiska pomiarowego.
 
 ## 3. Założenia i ograniczenia
 
-- Kamera ustawiona nieruchomo ponad makietą, z możliwie pełnym widokiem stanowisk parkingowych.
-- Makieta: docelowo 6–12 wyraźnie oznaczonych miejsc; liczba i wymiary do ustalenia po wykonaniu makiety.
-- Różne modele i kolory samochodów, zmienna liczba zaparkowanych aut, dodatkowe eksperymenty przy innym oświetleniu i niewielkiej zmianie kąta kamery.
-- Jeden strumień wideo (kamera USB, telefon działający jako kamera lub plik wideo); przetwarzanie na lokalnym komputerze.
-- Brak konieczności chmury, serwera i bazy rozproszonej w wersji podstawowej.
-- Priorytetem jest poprawność rozpoznawania stanów, czytelna demonstracja i mierzalna ewaluacja.
+- Podstawowym źródłem danych są zdjęcia rzeczywistych parkingów wraz z dostępnymi adnotacjami dotyczącymi położenia stanowisk i ich zajętości.
+- Wybór głównego zbioru danych (PKLot lub CNRPark+EXT) nastąpi po analizie formatu adnotacji, dostępności pełnych ujęć i wymagań eksperymentów. Możliwe jest wykorzystanie drugiego zbioru do niezależnych testów.
+- Wersja podstawowa przetwarza pojedyncze obrazy lub uporządkowane serie zdjęć; obsługa plików wideo lub kamery na żywo jest rozszerzeniem i nie jest niezbędna do przeprowadzenia badań.
+- Przetwarzanie i trening modeli odbywają się na lokalnym komputerze; użycie chmury i infrastruktury rozproszonej nie jest wymagane w wersji podstawowej.
+- Model powinien uwzględniać zróżnicowane warunki pogodowe, oświetlenie, perspektywę i częściowe przesłonięcia pojazdów obecne w danych.
+- Priorytetem są poprawność rozpoznawania zajętości, mierzalna ewaluacja oraz możliwość demonstracji wyników na pełnym obrazie parkingu.
+- Zbiory zawierają przede wszystkim fotografie wykonywane w określonych odstępach, a nie koniecznie ciągłe nagrania. Nie wolno utożsamiać zmian między kolejnymi zdjęciami ze wszystkimi rzeczywistymi zdarzeniami wjazdu i wyjazdu.
+- Automatyczna detekcja geometrii miejsc jest **odrębnym zadaniem** od klasyfikacji ich zajętości. Dostępne adnotacje stanowisk mogą służyć jako dane referencyjne oraz rozwiązanie bazowe.
 
 ## 4. Zakres funkcjonalny
 
 ### F1. Pozyskiwanie obrazu
-- Odczyt obrazu na żywo z kamery oraz z pliku wideo lub zdjęcia.
-- Możliwość wyboru źródła obrazu i podstawowej konfiguracji rozdzielczości.
+
+- Wczytywanie pełnych zdjęć parkingów z wybranego zbioru danych.
+- Obsługa odpowiadających im adnotacji oraz metadanych (np. identyfikator kamery, data i czas rejestracji, warunki pogodowe – jeśli są dostępne).
+- Wybór zdjęcia, zestawu zdjęć lub serii pochodzącej z jednej kamery.
+- **Rozszerzenie:** odczyt obrazu z pliku wideo lub kamery na żywo.
 
 ### F2. Wykrywanie i identyfikacja miejsc
-- **Cel końcowy:** automatyczna detekcja geometrii stanowisk na podstawie oznaczeń makiety (np. linii na podłożu).
-- Przypisanie każdemu stanowisku stabilnego identyfikatora, np. `P01`, `P02`, ...
-- Zapis wykrytych obszarów w konfiguracji i używanie ich na kolejnych klatkach wideo.
-- **Tryb awaryjny / etap MVP:** ręczne zaznaczenie wielokątnych obszarów stanowisk, aby pozostałe funkcje nie zależały od stopnia dopracowania detekcji automatycznej. Tryb ręczny nie zastępuje celu automatycznej lokalizacji miejsc.
+
+- **Cel końcowy:** automatyczna lokalizacja stanowisk parkingowych na pełnym obrazie za pomocą algorytmów przetwarzania obrazu lub modelu uczenia maszynowego.
+- Przypisanie stanowiskom identyfikatorów, np. `P01`, `P02`, ...; stabilność identyfikatorów jest wymagana w obrębie danej kamery/konfiguracji parkingu, nie pomiędzy różnymi parkingami.
+- Obsługa obszarów stanowisk w postaci wielokątów lub prostokątów, zależnie od adnotacji i zastosowanej metody.
+- Zapis i ponowne wykorzystanie konfiguracji stanowisk dla tego samego, nieruchomego ujęcia kamery.
+- **Tryb bazowy / etap MVP:** wykorzystanie lokalizacji stanowisk zapisanych w adnotacjach zbioru lub ich ręczne wskazanie. Tryb ten umożliwia niezależną ocenę klasyfikatora zajętości, ale nie stanowi realizacji automatycznej detekcji.
 
 ### F3. Klasyfikacja zajętości
+
 - Analiza obrazu każdego stanowiska i przypisanie jednej z klas: `FREE`, `OCCUPIED`.
-- Klasyfikator oparty na niewielkiej sieci CNN (np. MobileNetV3 z transfer learningiem).
-- Zachowanie wyniku i pewności predykcji dla pojedynczego stanowiska.
-- Wygładzanie czasowe wyników, aby wyeliminować migotanie stanów na kolejnych klatkach.
+- Zastosowanie klasyfikatora CNN, np. MobileNetV3 z transfer learningiem.
+- Zapis przewidywanej klasy oraz pewności predykcji dla każdego miejsca.
+- **Rozszerzenie dla serii czasowych/wideo:** wygładzanie przewidywań między kolejnymi obserwacjami tego samego stanowiska.
 
 ### F4. Wizualizacja
-- Podgląd obrazu z nałożonymi konturami stanowisk oraz kolorami: zielony – wolne, czerwony – zajęte.
-- Liczniki: wszystkie miejsca, wolne miejsca, zajęte miejsca; opcjonalnie procent zajętości.
-- Czytelne wskazanie, gdy detekcja stanowiska lub klasyfikacja ma niską pewność.
+
+- Wyświetlanie zdjęcia parkingu z nałożonymi konturami stanowisk: zielony – wolne, czerwony – zajęte.
+- Liczniki: wszystkie rozpoznane miejsca, wolne miejsca, zajęte miejsca; opcjonalnie procent zajętości.
+- Możliwość przełączania zdjęć i porównania predykcji z adnotacjami referencyjnymi.
+- Czytelne zaznaczenie przypadków o niskiej pewności klasyfikacji lub niepoprawnie wykrytych obszarów.
 
 ### F5. Rejestracja i analiza danych
-- Zapis stanu parkingu z datą i czasem (np. SQLite lub Parquet/CSV).
-- Zapis **zdarzeń zmiany stanu** (`FREE` -> `OCCUPIED` oraz odwrotnie) bez konieczności archiwizowania każdej identycznej klatki.
-- Obliczanie zagregowanych statystyk, np. średnia zajętość w czasie, czas zajęcia stanowiska, liczba zmian stanu.
-- Eksport danych i wygenerowanie przynajmniej jednego wykresu.
+
+- Zapis wyników analizy: źródło obrazu, identyfikator kamery/parkingu, identyfikator stanowiska, przewidywany stan i prawdopodobieństwo; data/czas rejestracji, jeśli są dostępne.
+- Agregowanie statystyk, np. procent zajętych miejsc w danym ujęciu, średnia zajętość dla kamery, wyniki według warunków pogodowych lub pory dnia.
+- **Dla uporządkowanych czasowo obrazów tego samego stanowiska:** wykrywanie zaobserwowanych zmian `FREE → OCCUPIED` i `OCCUPIED → FREE` oraz szacowanie czasu utrzymywania się stanu między obserwacjami, z wyraźnym zaznaczeniem ograniczeń częstotliwości próbkowania.
+- Eksport wyników do CSV/Parquet lub zapis w SQLite i wygenerowanie co najmniej jednego wykresu.
+- Analiza wydajności przetwarzania, np. czas analizy zdjęcia, przepustowość w obrazach na sekundę oraz czas inferencji modelu.
 
 ## 5. Architektura logiczna
 
 ```text
-Kamera / plik wideo
-        |
-        v
-Pozyskiwanie i wstępne przetwarzanie obrazu (OpenCV)
-        |
-        v
-Detekcja stanowisk + identyfikatory (geometria / konfiguracja)
-        |
-        v
+Publiczny zbiór danych (PKLot / CNRPark+EXT)
+       |
+       v
+Wczytywanie pełnych obrazów, adnotacji i metadanych
+       |
+       v
+Wstępne przetwarzanie obrazu (OpenCV)
+       |
+       v
+Lokalizacja stanowisk:
+  adnotacje / konfiguracja (MVP) lub detekcja automatyczna
+       |
+       v
 Wycinanie ROI poszczególnych stanowisk
-        |
-        v
+       |
+       v
 Klasyfikator CNN: FREE / OCCUPIED
-        |
-        v
-Wygładzanie predykcji w czasie
-        |
-        +----> Podgląd i liczniki
-        |
-        +----> Dziennik zdarzeń -> analiza statystyczna / wykresy
+       |
+       v
+Przypisanie wyników do stanowisk i obrazu źródłowego
+       |
+       +----> Wizualizacja obrazu i liczniki zajętości
+       |
+       +----> Zapis predykcji i metryk
+                    |
+                    v
+             Agregacja i wykresy
+
 ```
 
 ### Warianty metodyczne
 
 | Obszar | Wariant podstawowy / kontrolny | Wariant docelowy / badawczy |
 |---|---|---|
-| Lokalizacja stanowisk | Ręczna kalibracja obszarów ROI | Automatyczne wykrywanie oznaczonych miejsc (OpenCV: progowanie + detekcja linii/konturów; w razie potrzeby segmentacja) |
-| Ocena zajętości | Klasyczna analiza różnic obrazu wobec pustej makiety | CNN trenowana/dostrajana na próbkach ze stanowisk |
-| Zmiany w czasie | Stan na pojedynczej klatce | Wygładzanie oraz zapis zdarzeń |
+| Lokalizacja stanowisk | Wykorzystanie obszarów z adnotacji lub ręczna kalibracja ROI | Automatyczne wykrywanie lokalizacji miejsc na pełnym obrazie (OpenCV i/lub model detekcji/segmentacji) |
+| Ocena zajętości | Prosty klasyfikator bazowy, np. cechy obrazu + klasyfikator ML | CNN trenowana lub dostrajana na oznaczonych wycinkach miejsc |
+| Zmiany w czasie | Agregacja zajętości dla niezależnych zdjęć | Analiza zmian między chronologicznie uporządkowanymi obserwacjami tego samego miejsca |
 
-## 6. Zbiór danych i trening
+## 6. Zbiory danych i trening
 
-1. Zbudować makietę i ustabilizować kamerę (statyw/uchwyt, stała odległość, oświetlenie).
-2. Nagrać / wykonać fotografie dla wielu **niezależnych konfiguracji** samochodów, miejsc i warunków oświetlenia. Startowe założenie organizacyjne: około 200–500 zróżnicowanych scen, a nie setki niemal identycznych klatek jednego filmu.
-3. Oznaczyć obszary stanowisk oraz ich rzeczywisty stan (`FREE`/`OCCUPIED`). Każda klatka z kilkoma stanowiskami dostarczy wielu wycinków (ROI), ale nie są one w pełni niezależnymi obserwacjami.
-4. Rozdzielić dane na treningowe, walidacyjne i testowe **według sesji nagraniowych / konfiguracji scen**, a nie losowo po pojedynczych sąsiednich klatkach wideo; zapobiega to przeciekowi danych.
-5. Przygotować pipeline treningowy z augmentacją (jasność, kontrast, delikatne przesunięcia/obroty), zapisem wersji modelu, parametrów i metryk.
-6. Wybrać model na walidacji i ocenić **jednorazowo** na wydzielonym zbiorze testowym.
+### Rozważane zbiory danych
 
-**Uwaga:** modele trenowane na prawdziwych samochodach lub zbiory PKLot / CNRPark mogą stanowić inspirację albo dodatkową próbę, lecz nie są bezpośrednim zamiennikiem próbek Hot Wheels ze względu na różnicę domeny.
+**Opcja A – PKLot**  
+Strona projektu: [PKLot – Parking Lot Database](https://web.inf.ufpr.br/vri/databases/parking-lot-database/)
+
+- Zbiór zawiera **12 417 pełnych zdjęć parkingów** i **695 899 oznaczonych wycinków miejsc parkingowych**.
+- Dostępne są oznaczenia zajętości (`FREE`/`OCCUPIED`) oraz położenia stanowisk na pełnych obrazach (m.in. adnotacje XML).
+- Zdjęcia przedstawiają parkingi obserwowane przez nieruchome kamery w różnych warunkach pogodowych.
+- Jest szczególnie przydatny do testowania kompletnego przepływu: od obrazu całego parkingu, przez lokalizację stanowisk, po ocenę ich zajętości.
+
+**Opcja B – CNRPark+EXT**  
+Strona projektu: [CNRPark+EXT – Dataset for Visual Occupancy Detection](https://cnrpark.it/)
+
+- Zbiór zawiera **około 150 tys. oznaczonych wycinków stanowisk** z klasami `free` i `busy`.
+- Obejmuje różne kamery, perspektywy, warunki pogodowe i oświetleniowe, w tym trudne przypadki częściowego zasłonięcia aut.
+- Oprócz gotowych wycinków dostępne są **pełne ujęcia dla części CNR-EXT** oraz pliki z lokalizacjami stanowisk; przy ich łączeniu należy uwzględnić skalowanie współrzędnych do rozdzielczości udostępnionych zdjęć.
+- Szczególnie dobrze nadaje się do treningu i oceny klasyfikatora zajętości oraz eksperymentów z uogólnianiem między kamerami.
+
+**Wybór zbioru:** oba zbiory są alternatywnymi źródłami danych. Na początek wystarczy wybrać **jeden zbiór główny**; drugi można później wykorzystać jako niezależny test generalizacji. Przed ostatecznym wyborem należy zweryfikować dostępność plików, format adnotacji, wielkość pobierania i warunki licencyjne.
+
+### Przygotowanie danych i trening modelu
+
+1. Pobrać wybrany zbiór, przeanalizować jego strukturę oraz przygotować skrypt wczytujący obrazy, etykiety i położenia stanowisk.
+2. Sprawdzić jakość adnotacji oraz przygotować wycinki ROI przypisane do klas `FREE` i `OCCUPIED`. Tam, gdzie są dostępne gotowe wycinki, można wykorzystać je bez ponownego wycinania.
+3. Przygotować podziały treningowy, walidacyjny i testowy **na poziomie scen, dni rejestracji lub kamer**, a nie przez losowe mieszanie wycinków z bardzo podobnych zdjęć. W miarę możliwości uwzględnić osobny test na niewidzianej kamerze/parkingu.
+4. Zaimplementować prostą metodę bazową klasyfikacji zajętości, aby mieć punkt odniesienia dla CNN.
+5. Przygotować pipeline treningowy CNN z augmentacją (jasność, kontrast, niewielkie przekształcenia geometryczne), zapisem parametrów, wersji modelu i metryk.
+6. Wybrać model na podstawie walidacji i ocenić go **jednorazowo na wydzielonym zbiorze testowym**.
+7. Zintegrować klasyfikator z przetwarzaniem pełnych obrazów: lokalizacją ROI, nanoszeniem kolorów i podsumowaniem zajętości.
+8. **Etap badawczy:** opracować automatyczne wykrywanie lokalizacji miejsc i ocenić je oddzielnie od klasyfikacji, korzystając z dostępnych oznaczeń geometrii jako danych referencyjnych.
+9. **Opcjonalnie:** przetestować model na drugim zbiorze (PKLot ↔ CNRPark+EXT), zwracając uwagę na różnice perspektywy, formatu adnotacji i charakterystyki danych.
+
+**Uwaga o analizie czasowej:** statyczne zdjęcia wystarczają do treningu i oceny wykrywania zajętości. Rejestrowanie zmian stanu i szacowanie czasu parkowania jest możliwe wyłącznie wtedy, gdy da się wiarygodnie uporządkować obserwacje **tego samego stanowiska z tej samej kamery** według czasu rejestracji. Wyniki będą przybliżeniem opartym na odstępach między zdjęciami, a nie pełną historią rzeczywistych zdarzeń.
 
 ## 7. Proponowane technologie
 
 - **Python 3.11+** – implementacja i eksperymenty.
-- **OpenCV** – obsługa kamery, transformacje obrazu, kontury, podgląd.
+- **OpenCV** – wczytywanie i przetwarzanie zdjęć, praca z ROI, kontury i wizualizacja.
 - **PyTorch + torchvision** – trening i inferencja CNN; alternatywnie TensorFlow/Keras.
-- **NumPy, pandas, scikit-learn** – analiza danych, metryki, operacje numeryczne.
-- **SQLite** – lekki lokalny magazyn zdarzeń; opcjonalnie Parquet / DuckDB do analiz.
-- **Streamlit** lub prosty interfejs OpenCV – demonstracja na żywo (wybór po weryfikacji wydajności).
-- **Matplotlib** – wykresy i dokumentacja wyników.
+- **NumPy, pandas, scikit-learn** – przygotowanie danych, analiza statystyczna i metryki.
+- **SQLite** – lokalne przechowywanie predykcji i wyników; opcjonalnie Parquet / DuckDB do analiz większych zbiorów.
+- **Streamlit** lub prosty interfejs OpenCV – demonstracja wyników dla zdjęć i serii obrazów.
+- **Matplotlib** – wykresy i prezentacja wyników badań.
 
-Technologie stanowią propozycję, a nie sztywny wymóg. Użycie Apache Spark i narzędzi rozproszonych **nie jest uzasadnione samą małą makietą**; można je wprowadzić wyłącznie jako świadomy eksperyment skalowania danych.
+Technologie stanowią propozycję, a nie sztywny wymóg. Publiczne zbiory umożliwiają eksperymenty na znacznie większej liczbie obserwacji niż niewielka własna makieta, ale **samo ich użycie nie uzasadnia automatycznie wdrażania Apache Spark ani infrastruktury rozproszonej**. Takie narzędzia można rozważyć wyłącznie w ramach odrębnego eksperymentu skalowania przetwarzania.
 
-## 8. Kryteria akceptacji i ewaluacja
-
-### Kryteria minimalne
-- Działający podgląd z kamery lub nagrania.
-- Co najmniej 6 miejsc zidentyfikowanych w obrazie (na etapie MVP dopuszczalna kalibracja ręczna).
-- Klasyfikacja `FREE`/`OCCUPIED` przy użyciu rzeczywiście wytrenowanego/dostrojonego modelu ML.
-- Widoczny wynik dla każdego miejsca, liczniki globalne, zapis zdarzeń.
-- Raport eksperymentów na wydzielonym zbiorze testowym.
-
-### Kryteria docelowe
-- Automatyczne zlokalizowanie co najmniej 6 oznaczonych stanowisk na pustej makiecie i zachowanie konfiguracji na późniejsze klatki.
-- Raport `accuracy`, `precision`, `recall`, `F1` oraz macierzy pomyłek zajętości; osobna ocena skuteczności detekcji miejsc (np. odsetek poprawnie znalezionych stanowisk i IoU polygonów).
-- Zmierzenie liczby przetwarzanych klatek na sekundę oraz opóźnienia aktualizacji stanu.
-- Porównanie bazowego algorytmu klasycznego z CNN na tym samym zbiorze testowym.
-- Test w zmienionym oświetleniu i teście niewidzianych wcześniej konfiguracji.
-
-## 11. Etapy prac
+## 8. Etapy prac
 
 | Etap | Główny rezultat |
 |---|---|
 | 1. Koncepcja i repozytorium | Specyfikacja, struktura katalogów |
-| 2. Makieta i kamera | Stabilny obraz 6–12 stanowisk |
-| 3. Dataset | Oznaczone próbki i niezależne podziały danych |
-| 4. MVP wizyjne | Kalibracja ROI, prosty baseline zajętości, wizualizacja |
+| 2. Wybór i analiza danych | Wybór PKLot lub CNRPark+EXT, rozpoznanie formatu obrazów i adnotacji |
+| 3. Przygotowanie datasetu | Import, przetworzenie etykiet i ROI, niezależne podziały danych |
+| 4. MVP wizyjne | Praca na adnotowanych ROI, bazowa klasyfikacja, wizualizacja |
 | 5. Model AI | Trening/dostrojenie CNN, wyniki walidacji i testów |
-| 6. Automatyczne miejsca | Detektor geometrii miejsc, zapis kalibracji |
-| 7. Integracja i analityka | Podgląd w czasie rzeczywistym, log zdarzeń, agregacje |
-| 8. Badania i oddanie | Porównania, testy, demonstracja i sprawozdanie |
-
+| 6. Automatyczne miejsca | Detekcja geometrii stanowisk na pełnych obrazach i ewaluacja |
+| 7. Integracja i analityka | Wizualizacja całego parkingu, zapis wyników i agregacje |
+| 8. Badania i oddanie | Porównania metod, testy, demonstracja i sprawozdanie |
