@@ -1,0 +1,18 @@
+{
+  "fixed_example.jpg": {
+    "source": "outputs/fixed_parking_ufpr05_v1/demo_rainy.jpg",
+    "sha256": "b831f48b1ba13256353fe9cf03f13a197f7cc7e8cfe6b4fd09ee1de41b470f3e"
+  },
+  "own_photo_yolo_comparison.jpg": {
+    "source": "outputs/camera_experiment_review_v1/parking2_comparison.jpg",
+    "sha256": "27dd1796086c045e2ad873662911e16db0727099867788a6bbce13fdf1fdf615"
+  },
+  "validation_disagreements.jpg": {
+    "source": "outputs/fixed_parking_ufpr05_v1/validation_audit/errors.jpg",
+    "sha256": "88096bcf965b53c8aad0e89ba1e9286fa40440ebf553f3a91b281fca5d28bc6d"
+  },
+  "test_disagreements.jpg": {
+    "source": "outputs/fixed_parking_ufpr05_v1/final_test/errors.jpg",
+    "sha256": "fb4d852d45b82b5aba364399eac5de4b1dfb3ced9ff0d79345e905f03a71b3eb"
+  }
+}

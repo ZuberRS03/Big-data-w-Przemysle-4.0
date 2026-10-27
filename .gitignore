@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+*.egg-info/
+/build/
+/dist/
+.ipynb_checkpoints/
+
+# PyCharm
+.idea/
+
+# Dane
+/data/
+/models/
+/weights/
+/outputs/
+/runs/
+
+# Wagi, eksporty modeli i cache danych (także poza powyższymi katalogami)
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.engine
+*.tflite
+*.torchscript
+*.npy
+*.npz
+
+# Lokalne paczki datasetów i eksportów
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.log
+
+# Lokalne ustawienia i dane dostępowe; szablony .env.example mogą trafić do Git
+.env
+.env.*
+!.env.example
+!.env.*.example
+kaggle.json
+
+# docs/report_assets/ celowo pozostaje w repozytorium: obrazy i dane README
+
+# Pliki systemowe
+.DS_Store
+Thumbs.db
